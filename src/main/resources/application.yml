@@ -1,0 +1,16 @@
+spring:
+  data:
+    neo4j:
+      username: neo4j
+      password: 123456
+      uri: bolt://localhost:7687
+  thymeleaf:
+    enabled: true
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    cache: false
+    mode: HTML
+    suffix: .html
+
+server:
+  port: 8001
