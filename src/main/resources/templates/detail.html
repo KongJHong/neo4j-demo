@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>详情</title>
+    <link th:href="@{bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{bootstrap/css/hong-main.css}" rel="stylesheet">
+    <script th:src="@{bootstrap/js/jquery-2.0.0.min.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{bootstrap/js/echarts.min.js}"></script>
+
+    <link th:href="@{bootstrap/css/drawer.min.css}" rel="stylesheet">
+    <script th:src="@{bootstrap/js/iscroll.min.js}"></script>
+    <script th:src="@{bootstrap/js/drawer.min.js}"></script>
+</head>
+<body class="drawer drawer--left">
+
+
+<div class="main" style="position: absolute;left: 50%;transform: translate(-50%);">
+    <div class="panel panel-default detail-wrapper">
+        <div class="panel-heading bold-text" id="title">关于全面推开农业“三项补贴”改革工作的通知</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2" style="text-align: right">【类 型】:</div>
+                <div class="col-md-2" id="type">
+                    政策
+                </div>
+                <div class="col-md-2" style="text-align: right">【文 号】:</div>
+                <div class="col-md-2" id="ref">
+                    财农(2016)26号
+                </div>
+                <div class="col-md-2" style="text-align: right">【类型手段】:</div>
+                <div class="col-md-2" id="means">
+                    财政补贴
+                </div>
+            </div>
+            <div class="row row-interval">
+                <div class="col-md-2" style="text-align: right">【所在地】:</div>
+                <div class="col-md-2" id="location">
+                    中央
+                </div>
+                <div class="col-md-2" style="text-align: right">【政策内容】:</div>
+                <div class="col-md-2" id="content">
+                    农业农贸
+                </div>
+                <div class="col-md-2" style="text-align: right">【发布机构】:</div>
+                <div class="col-md-2" id="organization">
+                    财政部农业司
+                </div>
+            </div>
+            <div class="row row-interval">
+                <div class="col-md-2" style="text-align: right">【政策行业】:</div>
+                <div class="col-md-2" id="industry">
+                    农林牧渔
+                </div>
+                <div class="col-md-2" style="text-align: right">【发布时间】:</div>
+                <div class="col-md-2" id="publicTime">
+                    2016-04-25
+                </div>
+            </div>
+            <div class="row row-interval">
+                <div class="col-md-2" style="text-align: right">【关键字】:</div>
+                <div class="col-md-10" id="tags">
+                    <span class="label label-warning">农业信贷担保</span>
+                    <span class="label label-warning">生产建设兵团</span>
+                    <span class="label label-warning">补贴</span>
+                    <span class="label label-warning">农业</span>
+                    <span class="label label-warning">农贸综合补贴</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="detail-wrapper">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" th:onclick="'javasript:obtainPropertyGraph()'">属性图谱</button>
+            <button type="button" class="btn btn-default" th:onclick="'javascript:obtainRelationGraph()'">关系图谱</button>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="echart-wrapper" id="echart-wrapper"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-wrapper" style="margin-bottom: 30px">
+        <p id="policy-content"></p>
+    </div>
+</div>
+<header role="banner">
+    <nav class="drawer-nav" id="drawer-nav" style="width: 100px;" role="navigation">
+        <div class="drawer-menu">
+            <div class="drawer-title">
+                <span class="glyphicon glyphicon-minus"></span>
+                <span style="padding-left: 6px" class="title-font" id="detail-banner"></span>
+                <span style="padding-left: 6px"  id="detail-title"></span>
+                <hr/>
+                <span class="glyphicon glyphicon-minus"></span>
+                <span style="padding-left: 6px" class="title-font">内容</span>
+                <div id="detail-content" style="margin: 5px"></div>
+            </div>
+        </div>
+    </nav>
+</header>
+<script type="text/javascript" th:inline="javascript">
+    const myChart = echarts.init(document.getElementById('echart-wrapper'));
+    const drawer = $('.drawer');
+    let graph;
+    myChart.on('click', function (param) {
+        console.log(param);
+        setupDrawerDetail(param.data);
+        drawer.drawer('open');
+    });
+    $(function () {
+        drawer.drawer();
+        drawer.on('drawer.opened', function(){
+            document.getElementById("drawer-nav").style.width = "300px";
+        });
+        drawer.on('drawer.closed', function(){
+            document.getElementById("drawer-nav").style.width = "100px";
+        });
+        $.ajax({
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            url: "graph/data/2c804128bfb6304638f2a4acc9d3a508",
+            async: true,
+            success: function (result) {
+                graph = result;
+                setupDetail(result.graphDTO);
+                setupEChart(result.subsidyNodeDTOS, '属性图谱');
+            }
+        })
+    })
+
+    function setupDetail(graph) {
+        document.getElementById("title").innerHTML = graph.title;
+        document.getElementById("type").innerHTML = graph.indicates.type;
+        document.getElementById("means").innerHTML = graph.indicates.means;
+        document.getElementById("ref").innerHTML = graph.indicates.ref;
+        document.getElementById("policy-content").innerHTML = graph.content;
+        const tagsElement = document.getElementById("tags");
+        tagsElement.innerHTML = "";
+        for (const tag of graph.keywords) {
+            tagsElement.innerHTML += `<span class="label label-warning" style="margin-right: 5px">${tag}</span>`
+        }
+    }
+
+    function setupEChart(nodes, title) {
+        const categories = getCategories(nodes);
+
+        // 整合节点和连线
+        const data = [];
+        const links = [];
+        for (const p of nodes) {
+            data.push({
+                name: p.title,
+                draggable: true,
+                category: estimateCategory(p.type),
+                content: p.content
+            })
+
+            if (p.pointingNodes.length > 0) {
+                for (const target of p.pointingNodes) {
+                    const sp = target.split('\\$');
+                    links.push({
+                        source: p.title,
+                        target: sp[0],
+                        value: estimateLineValue(p.type, sp[1])
+                    })
+                }
+            }
+        }
+
+        const option = {
+            title: {
+                text: title
+            },
+            legend: [{
+                data: categories.map(x => x.name)
+            }],
+            series: [{
+                type: 'graph',
+                layout: 'force',
+                symbolSize: 60,
+                roam: true,
+                focusNodeAdjacency: true,
+                categories: categories,
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 12
+                        }
+                    }
+                },
+                force: {
+                    repulsion: 1000,
+                    edgeLength: [100, 300]
+                },
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [2, 7],
+                edgeLabel: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 10
+                        },
+                        formatter: "{c}"
+                    }
+                },
+                data: data,
+                links: links,
+                lineStyle: {
+                    opacity: 0.9,
+                    width: 1,
+                    curveness: 0
+                }
+            }]
+        };
+
+        myChart.setOption(option, false);
+
+    }
+
+
+    function getCategories(nodes) {
+        const distinctMap = {};
+        for (const p of nodes) {
+            distinctMap[p.type] = true;
+        }
+
+        const categories = [
+            {
+                name: '政策',
+                id: 'NORMAL',
+                itemStyle: {
+                    color: '#006ACC'
+                }
+            }, {
+                name: '事件',
+                id: 'EVENT',
+                itemStyle: {
+                    color: '#FF7d18'
+                }
+            }, {
+                name: '补贴对象',
+                id: 'SUBSIDY_TARGET',
+                itemStyle: {
+                    color: '#3DB34D'
+                }
+            }, {
+                name: '补贴类型',
+                id: 'SUBSIDY_TYPE',
+                itemStyle: {
+                    color: '#91766F'
+                }
+            }];
+
+        const result = [];
+        for (const cate of categories) {
+            if (distinctMap[cate.id])result.push(cate);
+        }
+        return result;
+    }
+
+    function estimateCategory(type) {
+        switch (type) {
+            case "NORMAL":
+                return "政策";
+            case "EVENT":
+                return "事件";
+            case "SUBSIDY_TARGET":
+                return "补贴对象";
+            case "SUBSIDY_TYPE":
+                return "补贴类型";
+
+        }
+    }
+
+    function estimateLineValue(type1, type2) {
+        if (type1 === 'NORMAL' && type2 === 'NORMAL')return '引用';
+
+
+        return '';
+    }
+
+    function setupDrawerDetail(node) {
+        document.getElementById("detail-banner").innerHTML = node.category + ":";
+        document.getElementById("detail-title").innerHTML = node.name;
+        document.getElementById("detail-content").innerHTML = node.content;
+    }
+
+    /** 关系图谱 */
+    function obtainRelationGraph() {
+        $.ajax({
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            url: "graph/policy/"+graph.graphDTO.coreNode,
+            async: true,
+            success: function (result) {
+                setupEChart(result, '关系图谱');
+            }
+        })
+    }
+
+    /** 属性图谱 */
+    function obtainPropertyGraph() {
+        setupEChart(graph.subsidyNodeDTOS, '属性图谱');
+    }
+</script>
+</body>
+</html>

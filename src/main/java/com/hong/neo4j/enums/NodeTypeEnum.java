@@ -9,7 +9,8 @@ package com.hong.neo4j.enums;
 public enum NodeTypeEnum {
 
 	PERSON,
-	MOVIE;
+	MOVIE,
+	POLICY;
 
 
 	public static void main(String[] args) {

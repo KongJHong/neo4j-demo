@@ -1,0 +1,235 @@
+<!doctype html>
+
+<!--注意：引入thymeleaf的名称空间-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.0.0-rc.1/echarts.min.js"></script>
+    <title>Document</title>
+    <style>
+        * {
+           padding: 0;
+            margin: 0;
+        }
+
+        #main {
+            width: 95%;
+            height: 95%;
+            margin: auto auto;
+            border: 1px solid red;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="main"></div>
+    <div style="position: absolute">
+         <label for="name1">名字1</label><input type="text" id="name1">
+         <label for="name2">名字2</label><input type="text" id="name2">
+        <button type="button" th:onclick="'javascript:addNodes()'">新增关系</button>
+        <button type="button" th:onclick="'javascript:obtainAllNodes()'">查看</button>
+        <button type="button" th:onclick="'javascript:obtainNode()'">查看单个</button>
+    </div>
+
+<script type="text/javascript" th:inline="javascript">
+
+    let filterMap = {};
+    let finalData = [];
+    let finalLinks = [];
+
+    // 基于准备好的dom，初始化echarts实例
+    const myChart = echarts.init(document.getElementById('main'));
+    myChart.on('click', function(param) {
+       onClickNode(param.name);
+    });
+
+    function onClickNode(title) {
+        $.ajax({
+            type: "GET",
+            contentType:"application/json;charset=UTF-8",
+            // url: "relation/graph/out/"+title+"/PERSON",
+            url: "relation/graph/out/"+title,
+            async: true,
+            success: function(result) {
+                if (!result || result.length === 0)return;
+                expandNode(title, result);
+            }
+        })
+    }
+
+    function addNodes() {
+        const value1 = document.getElementById("name1").value;
+        const value2 = document.getElementById("name2").value;
+        // $.ajax({
+        //     type: "GET",
+        //     contentType:"application/json;charset=UTF-8",
+        //     url: "relation/graph/addPersonRelation/"+value1+"/"+value2,
+        //     async: true,
+        //     success: function(result) {
+        //         console.log(result);
+        //     }
+        // })
+
+    }
+
+    function obtainAllNodes() {
+        $.ajax({
+            type: "GET",
+            contentType:"application/json;charset=UTF-8",
+            url: "relation/graph/test",
+            async: true,
+            success: function(result) {
+                setupOption(result)
+            }
+        })
+    }
+
+    function obtainNode(name) {
+        const value1 = name ? name : document.getElementById("name1").value;
+        $.ajax({
+            type: "GET",
+            contentType:"application/json;charset=UTF-8",
+            url: "relation/graph/name/"+value1,
+            async: true,
+            success: function(result) {
+                clearResource();
+                setupOption(result)
+            }
+        })
+    }
+
+    function expandNode(title,data) {
+        const node = data.filter(n => n.title === title)[0];
+        const links = [];
+        if (node.pointingNodes.length > 0) {
+            for(const target of node.pointingNodes) {
+                const sp = target.split('\\$');
+                links.push({
+                    source: node.title,
+                    target: sp[0],
+                    value: calcRelationship(node.type, sp[1]),
+                })
+            }
+        }
+        finalLinks.push(...links)
+        setupOption(data);
+    }
+
+    function setupOption(data) {
+        console.log(data);
+        const categories = [
+            {
+                name: '电影',
+                id: 'MOVIE',
+                itemStyle: {
+                    color:'#006acc'
+                }
+            },{
+            name: '员工',
+            id: 'PERSON',
+            itemStyle: {
+                color:'#ff7d18'
+            }
+        }];
+        const links = [];
+        const dd = [];
+        for(let i = 0; i < data.length;i++) {
+            const p = data[i];
+            if (filterMap[p.title]) continue;
+            filterMap[p.title] = true;
+                dd.push({
+                    name: p.title,
+                    draggable: true,
+                    category: p.type === 'MOVIE' ? 0 : 1
+                })
+            if (p.pointingNodes.length > 0) {
+                for(const target of p.pointingNodes) {
+                    const sp = target.split('\\$');
+                    links.push({
+                        source: p.title,
+                        target: sp[0],
+                        value: calcRelationship(p.type, sp[1]),
+                    })
+                }
+            }
+        }
+
+        finalData.push(...dd);
+        finalLinks.push(...links);
+        console.log(finalData);
+        console.log(finalLinks);
+        const fOption = {
+            title: {
+                    text: '知识图谱'
+                },
+            legend:[{
+               data: categories.map(x => x.name)
+            }],
+            series: [{
+                type: 'graph',
+                layout: 'force',
+                symbolSize: 60,
+                roam: true,
+                focusNodeAdjacency:true,
+                categories: categories,
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 12
+                        }
+                    }
+                },
+                force: {
+                    repulsion: 1000,
+                    edgeLength: [100, 300]
+                },
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [4,10],
+                edgeLabel: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 10
+                        },
+                        formatter: "{c}"
+                    }
+                },
+                data: finalData,
+                links: finalLinks,
+                lineStyle: {
+                    opacity: 0.9,
+                    width: 2,
+                    curveness: 0.1
+                }
+            }]
+        };
+
+        myChart.setOption(fOption);
+    }
+
+    function calcRelationship(type1, type2) {
+        if (type1 === 'PERSON' && type2 === 'PERSON') {
+            return '朋友';
+        }else if (type1 === 'PERSON' && type2 === 'MOVIE') {
+            return '点评';
+        } else {
+            return '';
+        }
+    }
+
+    function clearResource() {
+        filterMap = {};
+        finalLinks = [];
+        finalData = [];
+    }
+
+
+</script>
+</body>
+
+</html>

@@ -1,11 +1,7 @@
 package com.hong.neo4j.controller;
 
-import com.hong.neo4j.service.RelationGraphXService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author : KongJHong
@@ -16,17 +12,28 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class IndexController {
 
-	private final RelationGraphXService relationGraphXService;
 
-	public IndexController(RelationGraphXService relationGraphXService) {
-		this.relationGraphXService = relationGraphXService;
+	public IndexController() {
 	}
 
-	@GetMapping("/home")
-	public String index(HttpServletRequest request, Model model) {
-		model.addAttribute("title", "自定义题目");
+	@GetMapping("/graph")
+	public String index() {
+		return "graph";
+	}
 
-		return "index";
+	@GetMapping({"/home", "/", "index"})
+	public String home() {
+		return "home";
+	}
+
+	@GetMapping("/admin")
+	public String admin() {
+		return "admin";
+	}
+
+	@GetMapping("/detail")
+	public String detail(){
+		return "detail";
 	}
 
 }

@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @Getter
 @Setter
+@Deprecated // 暂时不看
 public class GraphNode {
 
 	@Id

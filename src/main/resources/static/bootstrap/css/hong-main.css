@@ -1,0 +1,68 @@
+.main {
+    width: 1200px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background-color: #fcf8e3;
+}
+
+.search-button {
+    width: 40%;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+.search-dimension {
+    width: 100%;
+    height: 20%;
+    padding: 20px 20px 0;
+}
+
+.search-return {
+    width: 100%;
+    height: 20%;
+    padding: 0 20px 20px;
+}
+
+.list-group-item-self {
+    width: 80%;
+}
+
+.button-group {
+    width: 80px;
+    margin: 0 auto;
+    padding-top: 30px;
+}
+
+.button-item {
+    padding: 10px 0;
+}
+
+.detail-wrapper {
+    width: 80%;
+    margin: 20px auto 0;
+}
+
+.bold-text {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.row-interval {
+    margin-top: 5px;
+}
+
+.echart-wrapper {
+    width: 900px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.drawer-title {
+    margin-left: 10px;
+
+}
+
+.title-font {
+    font-size: 20px;
+    font-weight: bold;
+}

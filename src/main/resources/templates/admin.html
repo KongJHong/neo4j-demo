@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>控制台</title>
+    <link th:href="@{bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{bootstrap/css/hong-main.css}" rel="stylesheet">
+    <script th:src="@{bootstrap/js/jquery-2.0.0.min.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div class="main">
+    <div class="button-group">
+        <div class="button-item">
+            <button type="button"  class="btn btn-default">添加测试用例</button>
+        </div>
+        <div class="button-item">
+            <button type="button" class="btn btn-default" th:onclick="redirectToHomePage()">跳到首页</button>
+        </div>
+    </div>
+    <form id="uploadForm" enctype="multipart/form-data">
+        文件: <input id="file" type="file" name="file">
+    </form>
+    <button id="upload" th:onclick="uploadFile()">上传文件</button>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+    function redirectToHomePage() {
+        window.location.href = "http://localhost:8001/home";
+    }
+
+    /** 上传 */
+    function uploadFile() {
+        const formData = new FormData($('#uploadForm')[0]);
+        $.ajax({
+            type: 'post',
+            url: "upload/",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false
+        }).success(function (data){
+            console.log(data);
+        }).error(function() {
+            alert("上传失败")
+        })
+    }
+</script>
+</body>
+</html>
