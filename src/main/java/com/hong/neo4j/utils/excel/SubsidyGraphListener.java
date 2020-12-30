@@ -43,5 +43,6 @@ public class SubsidyGraphListener extends AnalysisEventListener<SubsidyGraph> {
 	public void doAfterAllAnalysed(AnalysisContext context) {
 		log.info("所有数据解析完成");
 		subsidyGraphService.insertBatchGraph(list);
+		list.clear();
 	}
 }

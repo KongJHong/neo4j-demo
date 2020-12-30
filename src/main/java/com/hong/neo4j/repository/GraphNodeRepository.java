@@ -15,6 +15,7 @@ import java.util.List;
  * Description     :
  */
 @Repository
+@Deprecated
 public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
 
 	/**

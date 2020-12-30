@@ -1,6 +1,7 @@
 package com.hong.neo4j.domain;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,8 +14,9 @@ import java.util.Date;
  * @Version : 1.0
  * Description     : 节点关系
  */
-@RelationshipEntity("node-relation")
+@RelationshipEntity("node_relation")
 @Data
+@NoArgsConstructor
 public class SubsidyRelation {
 
 	@Id
@@ -27,6 +29,8 @@ public class SubsidyRelation {
 	@EndNode
 	private SubsidyNode endNode;
 
+	private String graphId;
+
 	/**
 	 * 关系描述
 	 */
@@ -36,11 +40,17 @@ public class SubsidyRelation {
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date create;
 
-	public SubsidyRelation(SubsidyNode startNode, SubsidyNode endNode, String comment, Date create) {
+	public SubsidyRelation(SubsidyNode startNode, SubsidyNode endNode, String comment, Date create, String graphId) {
+		this(null, startNode, endNode, comment, create, graphId);
+	}
+
+	public SubsidyRelation(Long id, SubsidyNode startNode, SubsidyNode endNode, String comment, Date create, String graphId) {
+		this.id = id;
 		this.startNode = startNode;
 		this.endNode = endNode;
 		this.comment = comment;
 		this.create = create;
+		this.graphId = graphId;
 	}
 
 }

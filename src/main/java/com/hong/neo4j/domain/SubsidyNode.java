@@ -11,7 +11,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class SubsidyNode {
 	 */
 	private Integer weight;
 
-//	@Index(unique = true)
+	//	@Index(unique = true)
 	private String title;
 
 	@DateLong
@@ -76,42 +75,46 @@ public class SubsidyNode {
 	/**
 	 * 它的所有关联节点，因为是图，所以很容易循环，绝对不能传出去给json
 	 */
-	@Relationship(type = "relation")
+	@Relationship(type = "node_relation", direction = Relationship.OUTGOING)
 	@JsonIgnore
-	private Set<SubsidyNode> subsidyNodes = new HashSet<>();
+	private Set<SubsidyRelation> pointingNodes = new HashSet<>();
+
+	public void addPointing(SubsidyNode... nodes) {
+		pointingNodes.addAll(Stream.of(nodes)
+				.map((node) -> new SubsidyRelation(this, node, node.lineContent, new Date(), graphId)).collect(Collectors.toList()));
+	}
 
 	/**
-	 * 出度数组, [本节点]指向[pointingNodes]
-	 * 因为neo4j不能存自定义对象，所以，只能用字符串数组构建
-	 * 格式: title\$type\$description
+	 * 添加关系，建议使用
+	 * @param node 指向节点
+	 * @param id 判断这个联系之前有没有，有id就有，没id就没有
 	 */
-	private Set<String> pointingNodes = new HashSet<>();
-
-	public void addPointing(SubsidyNode ...nodes) {
-		pointingNodes.addAll(Stream.of(nodes).map(SubsidyNode::toSimplify).collect(Collectors.toList()));
-		subsidyNodes.addAll(Arrays.asList(nodes));
+	public void addOnePointing(SubsidyNode node, Long id) {
+		pointingNodes.add(new SubsidyRelation(id, this,node ,node.lineContent, new Date(), graphId));
 	}
 
 	/**
 	 * 添加标签s
+	 *
 	 * @param tags 标签s
 	 */
-	public void addTags(String ...tags) {
+	public void addTags(String... tags) {
 		this.tags.addAll(Stream.of(tags).collect(Collectors.toList()));
 	}
 
-	public SubsidyNode(String title,String graphId, Integer weight, Date date, SubsidyTypeEnum typeEnum, String content, String[] tags) {
+	public SubsidyNode(String title, String graphId, Integer weight, Date date, SubsidyTypeEnum typeEnum, String content,String lineContent, String[] tags) {
 		this.title = title;
 		this.graphId = graphId;
 		this.weight = weight;
 		this.date = date;
 		this.type = typeEnum;
 		this.content = content;
+		this.lineContent = lineContent;
 		addTags(tags);
 	}
 
 	private static String toSimplify(SubsidyNode node) {
-		String lineContent = StringUtils.isBlank(node.getLineContent())?"":node.getLineContent();
+		String lineContent = StringUtils.isBlank(node.getLineContent()) ? "" : node.getLineContent();
 		return node.getTitle() + "\\$" + node.getType() + "\\$" + lineContent;
 	}
 
@@ -124,7 +127,6 @@ public class SubsidyNode {
 				", title='" + title + '\'' +
 				", date=" + date +
 				", type=" + type +
-				", lineContent='" + lineContent + '\'' +
 				", content='" + content + '\'' +
 				", tags=" + tags +
 				'}';

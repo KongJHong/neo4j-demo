@@ -66,3 +66,25 @@
     font-size: 20px;
     font-weight: bold;
 }
+
+.admin-upload-form {
+    margin: 0 20px 20px;
+}
+
+.form-item {
+    padding-top: 10px;
+    display: block;
+}
+
+.form-item-table {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.navigation-bar {
+    position: fixed;
+    width: 40px;
+    top: 10px;
+    right: 40px;
+}

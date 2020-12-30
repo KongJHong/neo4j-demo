@@ -13,6 +13,7 @@ import java.util.List;
  * @Version : 1.0
  * Description     :
  */
+@Deprecated
 @RestController
 @RequestMapping("/relation/graph")
 public class RelationGraphXController {

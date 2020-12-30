@@ -12,6 +12,7 @@ import java.util.List;
  * @Version : 1.0
  * Description     :
  */
+@Deprecated
 public interface RelationGraphXService {
 
 	List<GraphNode> addTest();

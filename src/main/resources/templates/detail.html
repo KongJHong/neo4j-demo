@@ -17,6 +17,7 @@
 
 
 <div class="main" style="position: absolute;left: 50%;transform: translate(-50%);">
+    <nav th:include="public::navbar" class="navigation-bar"></nav>
     <div class="panel panel-default detail-wrapper">
         <div class="panel-heading bold-text" id="title">关于全面推开农业“三项补贴”改革工作的通知</div>
         <div class="panel-body">
@@ -26,7 +27,7 @@
                     政策
                 </div>
                 <div class="col-md-2" style="text-align: right">【文 号】:</div>
-                <div class="col-md-2" id="ref">
+                <div class="col-md-2" id="proof">
                     财农(2016)26号
                 </div>
                 <div class="col-md-2" style="text-align: right">【类型手段】:</div>
@@ -40,7 +41,7 @@
                     中央
                 </div>
                 <div class="col-md-2" style="text-align: right">【政策内容】:</div>
-                <div class="col-md-2" id="content">
+                <div class="col-md-2" id="contentType">
                     农业农贸
                 </div>
                 <div class="col-md-2" style="text-align: right">【发布机构】:</div>
@@ -54,7 +55,7 @@
                     农林牧渔
                 </div>
                 <div class="col-md-2" style="text-align: right">【发布时间】:</div>
-                <div class="col-md-2" id="publicTime">
+                <div class="col-md-4" id="publicTime">
                     2016-04-25
                 </div>
             </div>
@@ -106,7 +107,6 @@
     const drawer = $('.drawer');
     let graph;
     myChart.on('click', function (param) {
-        console.log(param);
         setupDrawerDetail(param.data);
         drawer.drawer('open');
     });
@@ -118,25 +118,31 @@
         drawer.on('drawer.closed', function(){
             document.getElementById("drawer-nav").style.width = "100px";
         });
+        const searchId = [[${id}]];
         $.ajax({
             type: "GET",
             contentType: "application/json;charset=UTF-8",
-            url: "graph/data/2c804128bfb6304638f2a4acc9d3a508",
+            url: "graph/data/"+searchId,
             async: true,
             success: function (result) {
                 graph = result;
                 setupDetail(result.graphDTO);
-                setupEChart(result.subsidyNodeDTOS, '属性图谱');
+                setupEChart(result.subsidyNodeDTOS, result.subsidyRelationDTOS, '属性图谱');
             }
         })
     })
 
     function setupDetail(graph) {
         document.getElementById("title").innerHTML = graph.title;
-        document.getElementById("type").innerHTML = graph.indicates.type;
-        document.getElementById("means").innerHTML = graph.indicates.means;
-        document.getElementById("ref").innerHTML = graph.indicates.ref;
+        document.getElementById("type").innerHTML = graph.type;
+        document.getElementById("proof").innerHTML = graph.proof;
+        document.getElementById("means").innerHTML = graph.means;
+        document.getElementById("location").innerHTML = graph.location;
+        document.getElementById("contentType").innerHTML = graph.contentType;
+        document.getElementById("organization").innerHTML = graph.organization;
+        document.getElementById("industry").innerHTML = graph.industry;
         document.getElementById("policy-content").innerHTML = graph.content;
+        document.getElementById("publicTime").innerHTML = graph.updateTime.replace('T', ' ');
         const tagsElement = document.getElementById("tags");
         tagsElement.innerHTML = "";
         for (const tag of graph.keywords) {
@@ -144,7 +150,7 @@
         }
     }
 
-    function setupEChart(nodes, title) {
+    function setupEChart(nodes, relations, title) {
         const categories = getCategories(nodes);
 
         // 整合节点和连线
@@ -157,17 +163,15 @@
                 category: estimateCategory(p.type),
                 content: p.content
             })
+        }
 
-            if (p.pointingNodes.length > 0) {
-                for (const target of p.pointingNodes) {
-                    const sp = target.split('\\$');
-                    links.push({
-                        source: p.title,
-                        target: sp[0],
-                        value: estimateLineValue(p.type, sp[1])
-                    })
-                }
-            }
+        // 构造连线
+        for (const link of relations) {
+            links.push({
+                source: link.startNodeName,
+                target: link.endNodeName,
+                value: link.comment
+            })
         }
 
         const option = {
@@ -276,12 +280,6 @@
         }
     }
 
-    function estimateLineValue(type1, type2) {
-        if (type1 === 'NORMAL' && type2 === 'NORMAL')return '引用';
-
-
-        return '';
-    }
 
     function setupDrawerDetail(node) {
         document.getElementById("detail-banner").innerHTML = node.category + ":";
@@ -297,14 +295,14 @@
             url: "graph/policy/"+graph.graphDTO.coreNode,
             async: true,
             success: function (result) {
-                setupEChart(result, '关系图谱');
+                setupEChart(result, graph.subsidyRelationDTOS,'关系图谱');
             }
         })
     }
 
     /** 属性图谱 */
     function obtainPropertyGraph() {
-        setupEChart(graph.subsidyNodeDTOS, '属性图谱');
+        setupEChart(graph.subsidyNodeDTOS, graph.subsidyRelationDTOS, '属性图谱');
     }
 </script>
 </body>

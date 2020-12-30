@@ -50,9 +50,33 @@ public class SubsidyGraphDTO {
 	 */
 	String lastUpdateBy;
 	/**
-	 * 指示
+	 * 类型
 	 */
-	Map<String,String> indicates = new HashMap<>();
+	String type;
+	/**
+	 * 文号
+	 */
+	String proof;
+	/**
+	 * 类型手段
+	 */
+	String means;
+	/**
+	 * 所在地
+	 */
+	String location;
+	/**
+	 * 政策内容
+	 */
+	String contentType;
+	/**
+	 * 发布机构
+	 */
+	String organization;
+	/**
+	 * 行业
+	 */
+	String industry;
 	/**
 	 * 关键字
 	 */

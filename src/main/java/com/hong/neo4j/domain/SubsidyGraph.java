@@ -76,19 +76,46 @@ public class SubsidyGraph {
 	String lastUpdateBy;
 
 	/**
-	 * 指标信息，不存表：
-	 * 类型：政策， 文号：财农， 类型手段：财政补贴等
+	 * 类型
 	 */
-	@TableField(exist = false)
-	Map<String,String> indicates = new HashMap<>();
+	@ExcelProperty("类型")
+	String type;
 
 	/**
-	 * 指标信息,存表：
-	 * 类型：政策， 文号：财农， 类型手段：财政补贴等
+	 * 文号
 	 */
-	@TableField("indicatesStr")
-	@ExcelProperty("指标信息")
-	String indicatesStr;
+	@ExcelProperty("文号")
+	String proof;
+
+	/**
+	 * 类型手段
+	 */
+	@ExcelProperty("类型手段")
+	String means;
+
+	/**
+	 * 所在地
+	 */
+	@ExcelProperty("所在地")
+	String location;
+
+	/**
+	 * 政策内容
+	 */
+	@ExcelProperty("政策内容")
+	String contentType;
+
+	/**
+	 * 发布机构
+	 */
+	@ExcelProperty("发布机构")
+	String organization;
+
+	/**
+	 * 行业
+	 */
+	@ExcelProperty("行业")
+	String industry;
 
 	/**
 	 * 描述
@@ -112,11 +139,5 @@ public class SubsidyGraph {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     LocalDateTime updateTime;
 
-    @SuppressWarnings("unchecked")
-	public void setIndicatesStr(String indicatesStr) {
-		if (indicates.isEmpty()) {
-			indicates = JSONUtils.string2Obj(indicatesStr, HashMap.class);
-		}
-		this.indicatesStr = indicatesStr;
-	}
+
 }

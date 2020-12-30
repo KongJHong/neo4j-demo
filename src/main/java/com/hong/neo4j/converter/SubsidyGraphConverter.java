@@ -8,10 +8,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author : KongJHong
@@ -27,6 +25,9 @@ public interface SubsidyGraphConverter {
 
 	List<SubsidyGraphDTO> toDTOList(List<SubsidyGraph> entities);
 
+	@Mapping(source = "keywords", target = "keywords", qualifiedByName = "set2String")
+	SubsidyGraph toEntity(SubsidyGraphDTO dto);
+
 	@Named("string2Set")
 	default Set<String> string2Set(String keywords) {
 		Set<String> set = new HashSet<>();
@@ -35,6 +36,12 @@ public interface SubsidyGraphConverter {
 		String[] keyword = keywords.split(",");
 		set.addAll(Arrays.asList(keyword));
 		return set;
+	}
+
+	@Named("set2String")
+	default String set2String(Set<String> keywords) {
+		if (keywords == null || keywords.size() == 0)return "";
+		return String.join(",", keywords);
 	}
 
 }

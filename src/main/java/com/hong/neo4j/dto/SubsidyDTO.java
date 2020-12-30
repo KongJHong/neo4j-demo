@@ -17,4 +17,8 @@ public class SubsidyDTO {
 
 	List<SubsidyNodeDTO> subsidyNodeDTOS;
 
+	List<SubsidyRelationDTO> subsidyRelationDTOS;
+
+	List<SubsidyRelationDTO> outerRelationDTOS;
+
 }

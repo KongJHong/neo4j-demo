@@ -19,6 +19,7 @@ import java.util.stream.Stream;
  * Description     :
  */
 @Service
+@Deprecated
 public class RelationGraphXServiceImpl implements RelationGraphXService {
 
 	private final GraphNodeRepository graphNodeRepository;

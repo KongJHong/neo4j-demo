@@ -10,6 +10,7 @@
 </head>
 <body>
 <div class="main">
+    <nav th:include="public::navbar" class="navigation-bar"></nav>
     <div class="search-button">
         <div class="input-group">
             <input id="search-text" type="text" class="form-control" placeholder="搜索内容">
@@ -22,8 +23,7 @@
         <div style="font-size: 13px;color: #9d9d9d;margin-top: 3px">
             热门搜索:
             <span>
-                <a style="font-size: 12px;color: #9d9d9d;" th:onclick="hitClick('农业')">农业</a>
-                <a style="font-size: 12px;color: #9d9d9d;" th:onclick="hitClick('补贴')">补贴</a>
+                <a style="font-size: 12px;color: #9d9d9d;" th:onclick="hitClick('改革工作')">改革工作</a>
             </span>
         </div>
     </div>
@@ -46,7 +46,7 @@
                 <div class="row row-interval">
                     <div class="col-md-1" style="text-align: right">政策内容:</div>
                     <div class="col-md-4">
-                        <input type="radio" checked name="policyContent" value="all">&nbsp;&nbsp;全部
+                        <input type="radio" checked name="policyContent" value="all">&nbsp;&nbsp;<span>全部</span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="radio" name="policyContent" value="revenue">&nbsp;&nbsp;财政税收
                         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,34 +59,14 @@
 
     <div class="search-return">
         <ul class="list-group" id="search-return-content">
-            <li class="list-group-item">
-                <div style="font-weight: bold;font-size: 20px">政策一</div>
-                <div style="display: inline">
-                    <p style="display: inline"><span>　　2016年起，在全国全面推开农业“三项补贴”改革，即将农业“三项补贴”合并为农业支持保护补贴，政策目标调整为支持耕地地力保护和粮食适度规模经营。中央财政已将2016年用于耕地地力保护的农业支持保护补贴资金全部提前下达，其中下达黑龙江省、广东省和新疆维吾尔自治区的资金，包含了需兑付给直属垦区农场和兵团团场职工的用于耕地地力保护的资金，由农业部直属垦区、新疆生产建设兵团商当地省级财政、农业部门研究落实；年度执行中下达的农业支持保护补贴资金全部用于支持粮食适度规模经营；中央财政通过上划部门预算下达农业部直属垦区、新疆生产建设兵团、中储粮总公司的农业支持保护补贴资金，全部用于支持粮食适度规模经营。</span>
-                    </p>
-                    <a th:href="@{/detail}" target="_blank">>>>查看</a>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div style="font-weight: bold;font-size: 20px">政策二</div>
-                <div style="display: inline">
-                    <p style="display: inline"><span>　　农业“三项补贴”改革事关广大农民群众切身利益和农业农村发展大局，事关国家粮食安全和农业可持续发展，地方各级人民政府及财政、农业部门要切实加强组织领导，细化政策措施，注重宣传引导，加大工作力度，确保完成各项改革任务。</span>
-                    </p>
-                </div>
-                <a th:href="@{/detail}" target="_blank">>>>查看</a>
-            </li>
-            <li class="list-group-item">
-                <div style="font-weight: bold;font-size: 20px">政策三</div>
-                <div style="display: inline">
-                    <p style="display: inline"><span>　　近年来，党中央、国务院高度重视农业补贴政策的有效实施，明确要求在稳定加大补贴力度的同时，逐步完善补贴政策，改进补贴办法，提高补贴效能。推进农业“三项补贴”改革，是按照中央“稳增长、促改革、调结构、惠民生”总体部署做出的重大政策调整，是主动适应经济发展新常态、顺应农业发展新形势的重要举措，是供给侧结构性改革在农业生产领域的具体体现。全面推开农业“三项补贴”改革以绿色生态为导向，推进农业“三项补贴”由激励性补贴向功能性补贴转变、由覆盖性补贴向环节性补贴转变，提高补贴政策的指向性、精准性和实效性。各地要充分认识全面推开农业“三项补贴”改革的重要意义，把思想和行动统一到中央的决策部署上来，精心组织，周密部署，确保改革工作平稳顺利推进。</span>
-                    </p>
-                </div>
-                <a th:href="@{/detail}" target="_blank">>>>查看</a>
-            </li>
         </ul>
     </div>
 </div>
 <script type="text/javascript" th:inline="javascript">
+
+    $(function () {
+        searchAll();
+    })
 
     function hitClick(title) {
         document.getElementById("search-text").value = title;
@@ -95,16 +75,17 @@
 
     function searchClick() {
         const value = document.getElementById("search-text").value;
-        if (!value)return;
+        if (!value) return;
         $.ajax({
             type: "GET",
             contentType: "application/json;charset=UTF-8",
-            url: "graph/all",
+            url: "graph/all/" + value,
             async: true,
             success: function (result) {
                 setupSearchReturn(result);
             }
         })
+
     }
 
     function setupSearchReturn(data) {
@@ -117,7 +98,7 @@
                 <div style="display: inline">
                     <p style="display: inline"><span>　${content.description || ''}</span>
                     </p>
-                    <a href="/detail" target="_blank">>>>查看</a>
+                    <a href="/detail?id=${content.id}">>>>查看</a>
                 </div>
             </li>`
         }
@@ -129,34 +110,19 @@
 
     function searchClear() {
         document.getElementById("search-text").value = '';
-        const element = document.getElementById("search-return-content");
-        element.innerHTML = `
-            <li class="list-group-item">
-                <div style="font-weight: bold;font-size: 20px">政策一</div>
-                <div style="display: inline">
-                    <p style="display: inline"><span>　　2016年起，在全国全面推开农业“三项补贴”改革，即将农业“三项补贴”合并为农业支持保护补贴，政策目标调整为支持耕地地力保护和粮食适度规模经营。中央财政已将2016年用于耕地地力保护的农业支持保护补贴资金全部提前下达，其中下达黑龙江省、广东省和新疆维吾尔自治区的资金，包含了需兑付给直属垦区农场和兵团团场职工的用于耕地地力保护的资金，由农业部直属垦区、新疆生产建设兵团商当地省级财政、农业部门研究落实；年度执行中下达的农业支持保护补贴资金全部用于支持粮食适度规模经营；中央财政通过上划部门预算下达农业部直属垦区、新疆生产建设兵团、中储粮总公司的农业支持保护补贴资金，全部用于支持粮食适度规模经营。</span>
-                    </p>
-                    <a href="/detail" target="_blank">>>>查看</a>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div style="font-weight: bold;font-size: 20px">政策二</div>
-                <div style="display: inline">
-                    <p style="display: inline"><span>　　农业“三项补贴”改革事关广大农民群众切身利益和农业农村发展大局，事关国家粮食安全和农业可持续发展，地方各级人民政府及财政、农业部门要切实加强组织领导，细化政策措施，注重宣传引导，加大工作力度，确保完成各项改革任务。</span>
-                    </p>
-                </div>
-                <a href="/detail" target="_blank">>>>查看</a>
-            </li>
-            <li class="list-group-item">
-                <div style="font-weight: bold;font-size: 20px">政策三</div>
-                <div style="display: inline">
-                    <p style="display: inline"><span>　　近年来，党中央、国务院高度重视农业补贴政策的有效实施，明确要求在稳定加大补贴力度的同时，逐步完善补贴政策，改进补贴办法，提高补贴效能。推进农业“三项补贴”改革，是按照中央“稳增长、促改革、调结构、惠民生”总体部署做出的重大政策调整，是主动适应经济发展新常态、顺应农业发展新形势的重要举措，是供给侧结构性改革在农业生产领域的具体体现。全面推开农业“三项补贴”改革以绿色生态为导向，推进农业“三项补贴”由激励性补贴向功能性补贴转变、由覆盖性补贴向环节性补贴转变，提高补贴政策的指向性、精准性和实效性。各地要充分认识全面推开农业“三项补贴”改革的重要意义，把思想和行动统一到中央的决策部署上来，精心组织，周密部署，确保改革工作平稳顺利推进。</span>
-                    </p>
-                </div>
-                <a href="/detail" target="_blank">>>>查看</a>
-            </li>
-        `;
+        searchAll();
+    }
 
+    function searchAll() {
+        $.ajax({
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            url: "graph/all",
+            async: true,
+            success: function (result) {
+                setupSearchReturn(result);
+            }
+        })
     }
 </script>
 </body>

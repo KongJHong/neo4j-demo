@@ -20,4 +20,8 @@ public interface SubsidyNodeConverter {
 	SubsidyNodeDTO toDTO(SubsidyNode entity);
 
 	List<SubsidyNodeDTO> toDTOList(List<SubsidyNode> entities);
+
+	SubsidyNode toEntity(SubsidyNodeDTO dto);
+
+	List<SubsidyNode> toEntities(List<SubsidyNodeDTO> dtos);
 }

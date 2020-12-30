@@ -41,7 +41,6 @@ public class SubsidyNodeDTO {
 	 */
 	private SubsidyTypeEnum type;
 
-
 	/**
 	 * 节点内容
 	 */
@@ -51,12 +50,4 @@ public class SubsidyNodeDTO {
 	 * 标签
 	 */
 	private Set<String> tags = new HashSet<>();
-
-
-	/**
-	 * 出度数组, [本节点]指向[pointingNodes]
-	 * 因为neo4j不能存自定义对象，所以，只能用字符串数组构建
-	 * 格式: title\$type\$description
-	 */
-	private Set<String> pointingNodes = new HashSet<>();
 }

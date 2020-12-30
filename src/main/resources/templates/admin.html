@@ -10,21 +10,118 @@
 </head>
 <body>
 <div class="main">
-    <div class="button-group">
-        <div class="button-item">
-            <button type="button"  class="btn btn-default">添加测试用例</button>
+    <nav th:include="public::navbar" class="navigation-bar"></nav>
+    <div class="admin-upload-form">
+        <div class="form-item">
+            <span class="title-font">文件上传: </span>
+            <form id="uploadForm" enctype="multipart/form-data" style="display: inline-block">
+                <input id="file" type="file" name="file">
+            </form>
+            <button type="button" class="btn btn-default" id="upload" th:onclick="uploadFile()">上传文件</button>
         </div>
-        <div class="button-item">
-            <button type="button" class="btn btn-default" th:onclick="redirectToHomePage()">跳到首页</button>
+        <div class="form-item">
+            <span class="title-font">返回首页: </span>
+            <button type="button" class="btn btn-default" th:onclick="redirectToHomePage()">跳转</button>
+        </div>
+        <div class="form-item">
+            <div style="text-align: right">
+                <a class="label label-success" style="font-size: 15px" href="/detail-edit">新建</a>
+            </div>
+            <div>
+                <table border="1" class="table table-bordered" style="background-color: white;margin-top: 10px;" id="table-box">
+                    <tr>
+                        <th style="text-align: center">编号</th>
+                        <th style="text-align: center">标题</th>
+                        <th style="text-align: center">更新时间</th>
+                        <th style="text-align: center">关键词</th>
+                        <th style="text-align: center">操作</th>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
-    <form id="uploadForm" enctype="multipart/form-data">
-        文件: <input id="file" type="file" name="file">
-    </form>
-    <button id="upload" th:onclick="uploadFile()">上传文件</button>
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="myModal">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    是否确认删除: 《<span id="modal-target-title"></span>》
+                    <span style="display: none" id="modal-target-id"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" th:onclick="deleteOne()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript" th:inline="javascript">
+
+
+    $(function () {
+        setupModal();
+        $.ajax({
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            url: "graph/all",
+            async: true,
+            success: function (result) {
+                setupTable(result);
+            }
+        })
+
+    })
+
+    function setupTable(graphs) {
+        const element = document.getElementById("table-box").firstElementChild;
+        if (!element || !graphs) return;
+
+        for (let i = 1; i <= graphs.length; i++) {
+            const gg = graphs[i - 1];
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${i}</td>
+                             <td>${gg.title}</td>
+                             <td>${gg.updateTime.replace('T', ' ')}</td>
+                             <td>${gg.keywords.join(',')}</td>
+                             <td>
+                             <a href="/detail-edit?id=${gg.id}">编辑</a>
+                             <a type="button" data-toggle="modal" data-target="#myModal" data-title="${gg.title}" data-id="${gg.id}">删除</a>
+                             </td>`;
+            element.appendChild(tr);
+        }
+
+
+    }
+
+    function setupModal() {
+        $('#myModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const title = button.data('title');
+            const id = button.data('id');
+            document.getElementById('modal-target-title').innerHTML = title;
+            document.getElementById('modal-target-id').innerHTML = id;
+        })
+    }
+
+    function deleteOne() {
+        const id = document.getElementById('modal-target-id').innerHTML;
+         $.ajax({
+            type: 'delete',
+            url: "graph/"+id,
+            cache: false,
+            async: true,
+        }).success(function (data) {
+            if (data) location.reload();
+        }).error(function () {
+            alert("删除失败")
+        })
+    }
+
+
     function redirectToHomePage() {
         window.location.href = "http://localhost:8001/home";
     }
@@ -32,6 +129,10 @@
     /** 上传 */
     function uploadFile() {
         const formData = new FormData($('#uploadForm')[0]);
+        if (!formData) {
+            alert("请选择文件");
+            return;
+        }
         $.ajax({
             type: 'post',
             url: "upload/",
@@ -39,9 +140,9 @@
             cache: false,
             processData: false,
             contentType: false
-        }).success(function (data){
+        }).success(function (data) {
             console.log(data);
-        }).error(function() {
+        }).error(function () {
             alert("上传失败")
         })
     }

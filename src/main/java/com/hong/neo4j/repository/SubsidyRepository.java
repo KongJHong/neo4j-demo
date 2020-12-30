@@ -24,14 +24,14 @@ public interface SubsidyRepository extends Neo4jRepository<SubsidyNode, Long> {
 	List<Long> deleteAllByGraphId(String graphId);
 
 	/**
-	 * 根据类型找到所有和${title}节点有关的所有节点
+	 * 根据类型找到所有和${coreNode}节点有关的所有节点
 	 *
 	 * @param type  要找的节点的类型
-	 * @param title 根据这个title找到目标节点
+	 * @param coreNode 根据这个coreNode找到目标节点
 	 * @return 节点数组
 	 */
-	@Query("MATCH (n:Subsidy{title:$title}) MATCH (m:Subsidy{type:$type}) WHERE (n)-[:relation]->(m) OR (m)-[:relation]->(n) return n,m")
-	List<SubsidyNode> findAllByTypeAndTitle(SubsidyTypeEnum type, String title);
+	@Query("MATCH (n:Subsidy{title:$coreNode}) MATCH (m:Subsidy{type:$type}) WHERE (n)-[:node_relation]->(m) OR (m)-[:node_relation]->(n) return n,m")
+	List<SubsidyNode> findAllByTypeAndTitle(SubsidyTypeEnum type, String coreNode);
 
 	/**
 	 * 排除某种类型，根据核心的节点名称找到和它有关的所有节点
@@ -43,4 +43,6 @@ public interface SubsidyRepository extends Neo4jRepository<SubsidyNode, Long> {
 	 */
 	@Query("MATCH (n:Subsidy) MATCH(m:Subsidy{title:$title}) WHERE n.graphId = $graphId AND NOT (n.type IN $type) RETURN n,m")
 	List<SubsidyNode> findAllByGraphIdAndTitleAndNotEqualWithType(String graphId, String title, SubsidyTypeEnum ... type);
+
+	List<SubsidyNode> findAllByType(SubsidyTypeEnum type);
 }

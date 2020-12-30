@@ -69,6 +69,7 @@ public class SubsidyLinkListener extends AnalysisEventListener<Map<Integer, Stri
 	@Override
 	public void doAfterAllAnalysed(AnalysisContext context) {
 		subsidyRepository.saveAll(list);
+		cacheMaps.clear();
 	}
 
 	private void initialCacheMaps() {

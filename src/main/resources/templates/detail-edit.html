@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑页面</title>
+    <link th:href="@{bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{bootstrap/css/hong-main.css}" rel="stylesheet">
+    <script th:src="@{bootstrap/js/jquery-2.0.0.min.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{bootstrap/js/echarts.min.js}"></script>
+
+    <link th:href="@{bootstrap/css/drawer.min.css}" rel="stylesheet">
+    <script th:src="@{bootstrap/js/iscroll.min.js}"></script>
+    <script th:src="@{bootstrap/js/drawer.min.js}"></script>
+
+    <script type="text/javascript" charset="utf-8" th:src="@{/ueditors/ueditor.config.js}"></script>
+    <script type="text/javascript" charset="utf-8" th:src="@{/ueditors/ueditor.all.js}"></script>
+    <!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+    <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
+    <script type="text/javascript" charset="utf-8" th:src="@{/ueditors/lang/zh-cn/zh-cn.js}"></script>
+
+</head>
+<body>
+<div class="main">
+    <nav th:include="public::navbar" class="navigation-bar"></nav>
+    <div style="padding: 20px">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="title-font">基础信息</span>
+                <button type="button" id="previewBtn" class="btn btn-default" th:if="${id}" style="padding:2px">预览</button>
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputTitle" class="col-sm-2 control-label">标题:</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" id="inputTitle" placeholder="文章标题">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputName" class="col-sm-2 control-label">文章名称:</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" id="inputName" placeholder="文章名称">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputName" class="col-sm-2 control-label">类型:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputType" placeholder="类型">
+                        </div>
+                        <label for="inputName" class="col-sm-1 control-label">文号:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputProof" placeholder="文号">
+                        </div>
+                        <label for="inputName" class="col-sm-1 control-label">类型手段:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputMeans" placeholder="类型手段">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputName" class="col-sm-2 control-label">所在地:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputLocation" placeholder="所在地">
+                        </div>
+                        <label for="inputName" class="col-sm-1 control-label">政策内容:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputContentType" placeholder="政策内容">
+                        </div>
+                        <label for="inputName" class="col-sm-1 control-label">发布机构:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputOrganization" placeholder="发布机构">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputName" class="col-sm-2 control-label">行业:</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="inputIndustry" placeholder="行业">
+                        </div>
+                        <label for="inputName" class="col-sm-1 control-label">关键字:</label>
+                        <div class="col-sm-5">
+                            <input class="form-control" id="inputKeywords" placeholder='多个请用逗号区分'>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div style="padding: 20px">
+        <div class="panel panel-default">
+            <div class="panel-heading title-font">节点信息</div>
+            <div class="panel-body">
+                <div>
+                    <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#nodes" id="nodes-tab" role="tab" data-toggle="tab">编辑节点</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#property" id="property-tab" role="tab" data-toggle="tab">属性关系</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#relation" id="relation-tab" role="tab" data-toggle="tab">外部关系</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade in active" id="nodes">
+                            <!-- 节点表 -->
+                            <table id="node-table" class="table table-bordered">
+                                <tr>
+                                    <th>编号</th>
+                                    <th>节点名称</th>
+                                    <th>节点类型</th>
+                                    <th>内容说明</th>
+                                    <th>操作</th>
+                                </tr>
+                            </table>
+                            <div style="text-align: right">
+                                <button type="button" class="btn btn-success"
+                                        id="createNode" data-toggle="modal" data-target="#nodeEditModal">新建
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 属性关系表 -->
+                        <div role="tabpanel" class="tab-pane fade in" id="property">
+                            <table id="property-table" class="table table-bordered">
+                                <tr>
+                                    <th>编号</th>
+                                    <th>开始节点名称</th>
+                                    <th>结束节点名称</th>
+                                    <th>连接显示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </table>
+                            <div style="text-align: right">
+                                <button type="button" class="btn btn-success"
+                                        id="createProperty" data-toggle="modal" data-target="#linkEditModal">新建
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 外围关系表 -->
+                        <div role="tabpanel" class="tab-pane fade in" id="relation">
+                            <table id="relation-table" class="table table-bordered">
+                                <tr>
+                                    <th>编号</th>
+                                    <th>节点名称</th>
+                                    <th>连接显示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </table>
+                            <div style="text-align: right">
+                                <button type="button" class="btn btn-success"
+                                        id="createRelation" data-toggle="modal" data-target="#relationEditModal">新建
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding-top: 10px">
+                    <div class="echart-wrapper" id="echart-wrapper"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="padding: 20px">
+        <div class="panel panel-default">
+            <div class="panel-heading title-font">内容编辑</div>
+            <div class="panel-body">
+                <script id="editor" type="text/plain" style="height: 500px"></script>
+            </div>
+            <div style="; padding: 15px">
+                <span class="title-font">描述</span>
+                <textarea id="inputDescription" class="form-control" rows="6" style="resize: vertical"></textarea>
+            </div>
+        </div>
+        <div style="text-align: right">
+            <button class="btn btn-default" th:onclick="saveOrUpdate()">全部保存</button>
+        </div>
+    </div>
+    <div class="modal fade" id="nodeEditModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"></button>
+                    <h4 class="modal-title">编辑节点</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-2 control-label">节点名称:</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="nodeTitle" placeholder="节点名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-2 control-label">节点类型:</label>
+                            <div class="col-sm-6" style="padding-top: 7px">
+                                <label style="width: 100%">
+                                    <select id="nodeType"
+                                            style="width: 50%;font-size: 14px;height: 22px;font-weight: normal">
+                                        <option value="NORMAL">核心节点(唯一)</option>
+                                        <option value="EVENT">事件</option>
+                                        <option value="SUBSIDY_TARGET">补贴对象</option>
+                                        <option value="SUBSIDY_TYPE">补贴类型</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-2 control-label">内容说明:</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" id="nodeContent" cols="30"
+                                          style="resize: vertical"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" th:onclick="finishNodeEdit()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="linkEditModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"></button>
+                    <h4 class="modal-title">属性关系</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-3 control-label">开始节点名称:</label>
+                            <div class="col-sm-7" style="padding-top: 7px">
+                                <!--                                <input class="form-control" id="startNodeTitle" placeholder="开始节点名称">-->
+                                <label style="width: 100%">
+                                    <select id="startNodeTitle"
+                                            style="width: 80%;font-size: 14px;height: 22px;font-weight: normal">
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-3 control-label">结束节点名称:</label>
+                            <div class="col-sm-7" style="padding-top: 7px">
+                                <!--                                <input class="form-control" id="startNodeTitle" placeholder="开始节点名称">-->
+                                <label style="width: 100%">
+                                    <select id="endNodeTitle"
+                                            style="width: 80%;font-size: 14px;height: 22px;font-weight: normal">
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-3 control-label">连接显示:</label>
+                            <div class="col-sm-7">
+                                <input class="form-control" id="linkComment" placeholder="连接显示">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <span id="link-edit-id" style="display: none"></span>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" th:onclick="finishPropertyEdit()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="relationEditModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"></button>
+                    <h4 class="modal-title">外部关系</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-3 control-label">节点名称:</label>
+                            <div class="col-sm-7" style="padding-top: 7px">
+                                <!--                                <input class="form-control" id="startNodeTitle" placeholder="开始节点名称">-->
+                                <label style="width: 100%">
+                                    <select id="relateNodeTitle"
+                                            style="width: 80%;font-size: 14px;height: 22px;font-weight: normal">
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTitle" class="col-sm-3 control-label">连接显示:</label>
+                            <div class="col-sm-7">
+                                <input class="form-control" id="relateComment" placeholder="连接显示">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <span id="relate-edit-id" style="display: none"></span>
+                <span id="relate-edit-index" style="display: none"></span>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" th:onclick="finishRelationEdit()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="propertyDelConfirm">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    是否确认删除该节点: <span id="property-target-title"></span>
+                    <span style="display: none" id="property-target-id"></span>
+                    <span style="display: none" id="property-target-index"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" th:onclick="deleteNode()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="linkDelConfirm">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    是否确认删除该关系
+                    <span style="display: none" id="link-target-id"></span>
+                    <span style="display: none" id="link-target-index"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="deleteLink()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="relationDelConfirm">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    是否确认删除该关系
+                    <span style="display: none" id="relation-target-id"></span>
+                    <span style="display: none" id="relation-target-index"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="deleteRelation()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:inline="javascript">
+
+    let subsidyGraph = {
+        graphDTO: {id: null}
+    };
+    let displayPolicyData = [];
+    let policyData = [];
+    let nodesData = [];
+    let nodeIndex = -1; // 节点是否在编辑， -1 不是 >=0 是
+    let propertyLinks = [];
+    let linkIndex = -1; // 连线是否在编辑， -1 不是>= 0 是
+    let relateIndex = -1;
+    const myChart = echarts.init(document.getElementById('echart-wrapper'));
+    const ue = UE.getEditor('editor', {
+        toolbars: [
+            ['fullscreen', 'source', 'undo', 'redo'],
+            ['bold', 'italic', 'underline', 'fontborder', 'strikethrough',
+                'superscript', 'subscript', 'removeformat', 'formatmatch', 'autotypeset',
+                'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'insertorderedlist',
+                'insertunorderedlist', 'selectall', 'cleardoc']
+        ]
+    });
+
+    $(function () {
+        initialize();
+
+        $("#previewBtn").on('click', function() {
+            const id = [[${id}]];
+            location.replace("/detail?id=" + id);
+        })
+
+        setupModal();
+    })
+
+    function initialize() {
+        const searchId = [[${id}]];
+        if (searchId) {
+            $.ajax({
+                type: "GET",
+                contentType: "application/json;charset=UTF-8",
+                url: "graph/data/" + searchId,
+                async: true,
+                success: function (result) {
+                    subsidyGraph = result;
+                    console.log(result);
+                    initNormal(result.graphDTO);
+                    initEChart(result.subsidyNodeDTOS, result.subsidyRelationDTOS);
+                    initPointingPolicy(result.outerRelationDTOS);
+                }
+            })
+        }
+
+        // 查找所有的其他政策
+        $.ajax({
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            url: "graph/node/policy",
+            async: true,
+            success: function (result) {
+                displayPolicyData = result;
+            }
+        })
+    }
+
+    function initNormal(graph) {
+        $("#inputTitle").val(graph.title);
+        $("#inputName").val(graph.name);
+        $("#inputType").val(graph.type || '');
+        $("#inputProof").val(graph.proof || '');
+        $("#inputMeans").val(graph.means || '');
+        $("#inputLocation").val(graph.location || '');
+        $("#inputContentType").val(graph.contentType || '');
+        $("#inputOrganization").val(graph.organization || '');
+        $("#inputIndustry").val(graph.industry || '');
+        $("#inputKeywords").val(graph.keywords.join(",") || '');
+        $("#inputDescription").val(graph.description || '');
+
+        ue.ready(function () {
+            ue.setContent(graph.content);
+        });
+    }
+
+    /** 初始化指向的外部政策节点 */
+    function initPointingPolicy(data) {
+        policyData = data;
+        setupRelationTable();
+    }
+
+    function initEChart(nodes, links) {
+        nodes.forEach(node => {
+            nodesData.push({
+                id: node.id,
+                title: node.title,
+                type: node.type,
+                content: node.content,
+            })
+        })
+
+        links.forEach(link => {
+            propertyLinks.push({
+                id: link.id,
+                source: link.startNodeName,
+                target: link.endNodeName,
+                value: link.comment
+            })
+        })
+
+        setupNodeTable();
+        setupLinksTable();
+        setupEChart(nodesData, propertyLinks, "属性图谱");
+    }
+
+
+    function setupModal() {
+        $('#myTabs a').click(function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+            if ($(this).context.id === 'relation-tab') {
+                document.getElementById("echart-wrapper").style.display = 'none';
+            } else {
+                document.getElementById("echart-wrapper").style.display = '';
+            }
+        })
+
+
+        $('#nodeEditModal').on('show.bs.modal', function (event) {
+            const element = $(event.relatedTarget);
+            if (element.context.id !== 'createNode') {
+                const index = element.data("index");
+                const node = nodesData[index];
+                $("#nodeTitle").val(node.title);
+                $("#nodeType").val(node.type);
+                $("#nodeContent").val(node.content);
+                nodeIndex = index;
+            } else {
+                clearNodeEdit();
+            }
+        })
+        $('#nodeEditModal').on('hide.bs.modal', function (event) {
+            nodeIndex = -1;
+        })
+
+        $('#linkEditModal').on('show.bs.modal', function (event) {
+            const element = $(event.relatedTarget);
+            const startNodeName = element.data("start");
+            const endNodeName = element.data("end");
+            const value = element.data("value");
+            const index = element.data("index");
+            if (index >= 0) linkIndex = index;
+            const sElement = document.getElementById("startNodeTitle");
+            const eElement = document.getElementById("endNodeTitle");
+            sElement.innerHTML = '';
+            eElement.innerHTML = '';
+            for (let i = 0; i < nodesData.length; i++) {
+                const node = nodesData[i];
+                const select = `<option value="${node.title}">${node.title}</option>`;
+                sElement.innerHTML += select;
+                eElement.innerHTML += select;
+            }
+
+            $("#linkComment").val(value);
+            $("#startNodeTitle").find("option").each(function () {
+                if ($(this).text() === startNodeName) {
+                    $(this).attr("selected", true);
+                }
+            })
+            $("#endNodeTitle").find("option").each(function () {
+                if ($(this).text() === endNodeName) {
+                    $(this).attr("selected", true);
+                }
+            })
+        });
+        $('#linkEditModal').on('hide.bs.modal', function (event) {
+            linkIndex = -1;
+        })
+
+        $('#relationEditModal').on('show.bs.modal', function (event) {
+            const element = $(event.relatedTarget);
+            const index = element.data("index");
+            document.getElementById("relate-edit-id").innerHTML = element.data("id");
+            document.getElementById("relate-edit-index").innerHTML = index;
+            $("#relateComment").val(element.data("comment") || '');
+            const title = element.data("title");
+            if (index && index >= 0) relateIndex = index;
+            const selection = document.getElementById("relateNodeTitle");
+            selection.innerHTML = '';
+            const data = nodesData.find(node => node.type === 'NORMAL');
+            for (const node of displayPolicyData) {
+                if (data && data.title === node.title) continue;
+                selection.innerHTML += `<option value="${node.title}">${node.title}</option>`;
+            }
+
+            $("#relateNodeTitle").find("option").each(function () {
+                if ($(this).text() === title) {
+                    $(this).attr("selected", true);
+                }
+            })
+        })
+        $('#relationEditModal').on('hide.bs.modal', function (event) {
+            relateIndex = -1;
+        })
+
+        $('#linkDelConfirm').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const index = button.data('index');
+            const id = button.data('id');
+            document.getElementById('link-target-index').innerHTML = index;
+            document.getElementById('link-target-id').innerHTML = id;
+        })
+
+        $('#propertyDelConfirm').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const index = button.data('index');
+            const id = button.data('id');
+            const title = button.data("title")
+            document.getElementById('property-target-index').innerHTML = index;
+            document.getElementById('property-target-id').innerHTML = id;
+            document.getElementById('property-target-title').innerHTML = title;
+        })
+
+        $('#relationDelConfirm').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const index = button.data('index');
+            const id = button.data('id');
+            document.getElementById('relation-target-index').innerHTML = index;
+            document.getElementById('relation-target-id').innerHTML = id;
+        })
+    }
+
+    /** 节点编辑 */
+    function finishNodeEdit() {
+        const title = $("#nodeTitle").val();
+        const type = $("#nodeType").val();
+        const content = $("#nodeContent").val();
+        if (!title || !type) {
+            alert("请输入名称");
+            return;
+        }
+
+        if (nodeIndex >= 0) {
+            nodesData[nodeIndex].title = title;
+            nodesData[nodeIndex].type = type;
+            nodesData[nodeIndex].content = content;
+        } else {
+            nodesData.push({id: null, title, type, content})
+        }
+
+        setupEChart(nodesData, propertyLinks, "属性图谱");
+        setupNodeTable();
+        $('#nodeEditModal').modal('hide')
+    }
+
+    function finishPropertyEdit() {
+        const source = $("#startNodeTitle").val();
+        const target = $("#endNodeTitle").val();
+        const value = $("#linkComment").val();
+
+        if (!source || !target) {
+            alert("请输入开始节点名称或结束节点名称");
+            return;
+        }
+
+        if (linkIndex >= 0) {
+            propertyLinks[linkIndex].source = source;
+            propertyLinks[linkIndex].target = target;
+            propertyLinks[linkIndex].value = value;
+            linkIndex = -1;
+        } else {
+            propertyLinks.push({
+                id: null, source, target, value
+            })
+        }
+        setupLinksTable();
+        setupEChart(nodesData, propertyLinks, "属性图谱");
+        $('#linkEditModal').modal('hide')
+
+    }
+
+    function finishRelationEdit() {
+        const endNodeName = $("#relateNodeTitle").val();
+        const comment = $("#relateComment").val();
+        const startNodeName = nodesData.find(node => node.type === 'NORMAL').title;
+        if (relateIndex >= 0) {
+            policyData[relateIndex].endNodeName = endNodeName;
+            policyData[relateIndex].comment = comment;
+        } else {
+            policyData.push({
+                id: null,
+                startNodeName,
+                endNodeName,
+                comment
+            })
+        }
+        $('#relationEditModal').modal('hide')
+        setupRelationTable();
+    }
+
+    function clearNodeEdit() {
+        $("#nodeTitle").val('');
+        $("#nodeType").val('EVENT');
+        $("#nodeContent").val('');
+    }
+
+    function deleteNode() {
+        const index = document.getElementById('property-target-index').innerHTML;
+        const id = document.getElementById('property-target-id').innerHTML;
+        if (id !== '0' || id !== '') {
+            $.ajax({
+                type: "DELETE",
+                contentType: "application/json;charset=UTF-8",
+                url: "graph/node/" + id,
+                async: true,
+                success: function (result) {
+                    if (result) {
+                        nodesData.splice(Number(index), 1);
+                        nodeIndex = -1;
+                        setupNodeTable();
+                        setupEChart(nodesData, propertyLinks, "属性图谱");
+                    }
+                    $('#propertyDelConfirm').modal('hide')
+                }
+            })
+        } else {
+            nodesData.splice(index, 1);
+            nodeIndex = -1;
+            setupNodeTable();
+            setupEChart(nodesData, propertyLinks, "属性图谱");
+        }
+
+    }
+
+    /**
+     * 删除关系
+     */
+    function deleteLink() {
+        const index = document.getElementById("link-target-index").innerHTML;
+        const id = document.getElementById("link-target-id").innerHTML;
+        if (id && id !== 0) {
+            $.ajax({
+                type: "DELETE",
+                contentType: "application/json;charset=UTF-8",
+                url: "graph/link/" + id,
+                async: true,
+                success: function (result) {
+                    if (result) {
+                        propertyLinks.splice(Number(index), 1);
+                        linkIndex = -1;
+                        setupLinksTable();
+                        setupEChart(nodesData, propertyLinks, "属性图谱");
+                    }
+                    $('#linkDelConfirm').modal('hide')
+                }
+            })
+        } else {
+            propertyLinks.splice(Number(index), 1);
+            linkIndex = -1;
+            $('#linkDelConfirm').modal('hide')
+            setupLinksTable();
+            setupEChart(nodesData, propertyLinks, "属性图谱");
+        }
+    }
+
+    /** 删除外部关系 */
+    function deleteRelation() {
+        const index = document.getElementById("relation-target-index").innerHTML;
+        const id = Number(document.getElementById("relation-target-id").innerHTML);
+        if (id && id !== 0) {
+            $.ajax({
+                type: "DELETE",
+                contentType: "application/json;charset=UTF-8",
+                url: "graph/relation/" + id,
+                async: true,
+                success: function (result) {
+                    if (result) {
+                        policyData.splice(Number(index), 1);
+                        setupRelationTable();
+                    }
+                    $('#relationDelConfirm').modal('hide');
+                }
+            })
+        } else {
+            policyData.splice(Number(index), 1);
+            setupRelationTable();
+            $('#relationDelConfirm').modal('hide');
+        }
+    }
+
+    function saveOrUpdate() {
+        const id = subsidyGraph.graphDTO.id;
+        const graphDTO = {
+            id: id,
+            coreNode: nodesData.find(node => node.type === 'NORMAL').title,
+            name: $("#inputName").val(),
+            title: $("#inputTitle").val(),
+            type: $("#inputType").val(),
+            proof: $("#inputProof").val(),
+            means: $("#inputMeans").val(),
+            location: $("#inputLocation").val(),
+            contentType: $("#inputContentType").val(),
+            organization: $("#organization").val(),
+            industry: $("#inputIndustry").val(),
+            keywords: $("#inputKeywords").val().split(","),
+            description: $("#inputDescription").val(),
+            content: ue.getContent()
+        }
+
+        const subsidyNodeDTOS = [...nodesData];
+        const subsidyRelationDTOS = [];
+        for (const link of propertyLinks) {
+            subsidyRelationDTOS.push({
+                id: link.id,
+                startNodeName: link.source,
+                endNodeName: link.target,
+                comment: link.value
+            })
+        }
+
+        $.ajax({
+            type: "post",
+            contentType: "application/json;charset=UTF-8",
+            url: "graph/",
+            data: JSON.stringify({
+                'graphDTO': graphDTO,
+                'subsidyNodeDTOS': subsidyNodeDTOS,
+                'subsidyRelationDTOS': subsidyRelationDTOS,
+                'outerRelationDTOS': policyData
+            }),
+            success: function (result) {
+                subsidyGraph = result;
+                location.replace("/detail-edit?id=" + result.graphDTO.id)
+            }
+        })
+    }
+
+    function setupLinksTable() {
+        const element = document.getElementById("property-table").firstElementChild;
+        const tableHead = element.firstElementChild;
+        element.innerHTML = "";
+        element.appendChild(tableHead);
+        for (let i = 0; i < propertyLinks.length; i++) {
+            const link = propertyLinks[i];
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                            <td>${i + 1}</td>
+                            <td>${link.source}</td>
+                            <td>${link.target}</td>
+                            <td>${link.value}</td>
+                            <td>
+                              <a id="editNode" data-toggle="modal" data-index="${i}"
+                                                data-start="${link.source}" data-end="${link.target}"
+                                                data-value="${link.value}"
+                                                data-id="${link.id}"
+                                                data-target="#linkEditModal">编辑</a>
+                              <a type="button" data-toggle="modal" data-target="#linkDelConfirm" data-id="${link.id || 0}" data-index="${i}">删除</a>
+                            </td>`;
+            element.appendChild(tr);
+        }
+    }
+
+    function setupNodeTable() {
+        const element = document.getElementById("node-table").firstElementChild;
+        const tableHead = element.firstElementChild;
+        element.innerHTML = "";
+        element.appendChild(tableHead);
+        for (let i = 0; i < nodesData.length; i++) {
+            const node = nodesData[i];
+            const tr = document.createElement("tr");
+            let content = node.content || '';
+            if (content.length >= 30) content = content.substring(0, 30) + '...';
+            tr.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${node.title}</td>
+                        <td>${node.type}</td>
+                        <td title='${node.content}'>${content}</td>
+                        <td>
+                          <a id="editNode" data-toggle="modal" data-index="${i}" data-target="#nodeEditModal">编辑</a>
+                          <a type="button" data-toggle="modal" data-target="#propertyDelConfirm"
+                                data-id="${node.id || 0}" data-index="${i}" data-title="${node.title}">删除</a>
+                        </td>
+                        `;
+            element.appendChild(tr);
+        }
+    }
+
+    function setupRelationTable() {
+        const element = document.getElementById("relation-table").firstElementChild;
+        const tableHead = element.firstElementChild;
+        element.innerHTML = "";
+        element.appendChild(tableHead);
+        for (let i = 0; i < policyData.length; i++) {
+            const node = policyData[i];
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${node.endNodeName}</td>
+                        <td>${node.comment}</td>
+                        <td>
+                          <a id="editNode" data-toggle="modal" data-index="${i}"
+                            data-title="${node.endNodeName}" data-comment="${node.comment}"
+                            data-target="#relationEditModal">编辑</a>
+                          <a type="button" data-toggle="modal" data-target="#relationDelConfirm"
+                                data-id="${node.id || 0}" data-index="${i}">删除</a>
+                        </td>
+                        `;
+            element.appendChild(tr);
+        }
+
+    }
+
+    function setupEChart(nodes, links, title) {
+        const categories = getCategories(nodes);
+
+        // 整合节点和连线
+        const data = [];
+        for (const p of nodes) {
+            data.push({
+                name: p.title,
+                draggable: true,
+                category: estimateCategory(p.type),
+                content: p.content
+            })
+        }
+
+        // 构造连线
+
+        const option = {
+            title: {
+                text: title
+            },
+            legend: [{
+                data: categories.map(x => x.name)
+            }],
+            series: [{
+                type: 'graph',
+                layout: 'force',
+                symbolSize: 60,
+                roam: true,
+                focusNodeAdjacency: true,
+                categories: categories,
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 12
+                        }
+                    }
+                },
+                force: {
+                    repulsion: 1000,
+                    edgeLength: [100, 300]
+                },
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [2, 7],
+                edgeLabel: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 10
+                        },
+                        formatter: "{c}"
+                    }
+                },
+                data: data,
+                links: links,
+                lineStyle: {
+                    opacity: 0.9,
+                    width: 1,
+                    curveness: 0
+                }
+            }]
+        };
+
+        myChart.setOption(option, false);
+
+    }
+
+    function onSaveRelation() {
+        console.log(policyData);
+    }
+
+    function getCategories(nodes) {
+        const distinctMap = {};
+        for (const p of nodes) {
+            distinctMap[p.type] = true;
+        }
+
+        const categories = [
+            {
+                name: '政策',
+                id: 'NORMAL',
+                itemStyle: {
+                    color: '#006ACC'
+                }
+            }, {
+                name: '事件',
+                id: 'EVENT',
+                itemStyle: {
+                    color: '#FF7d18'
+                }
+            }, {
+                name: '补贴对象',
+                id: 'SUBSIDY_TARGET',
+                itemStyle: {
+                    color: '#3DB34D'
+                }
+            }, {
+                name: '补贴类型',
+                id: 'SUBSIDY_TYPE',
+                itemStyle: {
+                    color: '#91766F'
+                }
+            }];
+
+        const result = [];
+        for (const cate of categories) {
+            if (distinctMap[cate.id]) result.push(cate);
+        }
+        return result;
+    }
+
+    function estimateCategory(type) {
+        switch (type) {
+            case "NORMAL":
+                return "政策";
+            case "EVENT":
+                return "事件";
+            case "SUBSIDY_TARGET":
+                return "补贴对象";
+            case "SUBSIDY_TYPE":
+                return "补贴类型";
+
+        }
+    }
+</script>
+</body>
+</html>

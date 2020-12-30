@@ -1,7 +1,13 @@
 package com.hong.neo4j.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Author : KongJHong
@@ -32,8 +38,16 @@ public class IndexController {
 	}
 
 	@GetMapping("/detail")
-	public String detail(){
+	public String detail(HttpServletRequest request, Model model){
+		String id = request.getParameter("id");
+		if (!StringUtils.isEmpty(id)) model.addAttribute("id", id);
 		return "detail";
 	}
 
+	@GetMapping("/detail-edit")
+	public String edit(HttpServletRequest request, Model model) {
+		String id = request.getParameter("id");
+		if (!StringUtils.isEmpty(id)) model.addAttribute("id", id);
+		return "detail-edit";
+	}
 }
